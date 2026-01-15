@@ -98,7 +98,21 @@
         }
         .btn-del:hover { background: var(--red); color: white; }
 
-        @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+        /* --- RESPONSIVE FIX (HP) --- */
+        @media (max-width: 768px) {
+            nav { padding: 1rem 5%; flex-direction: column; gap: 15px; }
+            nav div { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+            nav div a { margin: 0; font-size: 0.75rem; }
+            
+            .header-section h1 { font-size: 2.2rem; }
+            .header-section p { font-size: 0.9rem; }
+
+            .input-card { padding: 25px 20px; border-radius: 25px; }
+            .form-row { grid-template-columns: 1fr; gap: 10px; }
+            
+            .time-card { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; }
+            .btn-del { width: 100%; text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -106,8 +120,8 @@
 <nav>
     <div class="logo">C<span>oord.</span></div>
     <div>
-        <a href="landing.html">Home</a>
-        <a href="index.html">Dashboard</a>
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
         <a href="time.html" class="active">Time</a>
         <a href="finance.html">Finance</a>
         <a href="activity.html">Activity</a>
@@ -129,8 +143,7 @@
         <button class="btn-plot" onclick="saveTime()">Eksekusi Jadwal</button>
     </div>
 
-    <div class="timeline-container" id="timeList">
-        </div>
+    <div class="timeline-container" id="timeList"></div>
 </div>
 
 <script>
@@ -138,6 +151,13 @@
 
     window.onload = () => {
         document.body.classList.add('loaded');
+        
+        // Proteksi: Jika belum login, lempar ke login.html
+        if(!localStorage.getItem("coord_user")) {
+            window.location.href = "login.html";
+            return;
+        }
+        
         renderTime();
     };
 
