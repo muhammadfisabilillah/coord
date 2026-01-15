@@ -106,14 +106,9 @@
 </nav>
 
 <div class="container">
-    <header style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-        <div>
-            <h1 style="font-size: 2.8rem; font-weight: 800; margin: 0; letter-spacing: -2px;">The Core<span>.</span></h1>
-            <p style="color:var(--sub); margin-top:5px;">Sinkronisasi data otomatis dari semua modul aktif.</p>
-        </div>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <img id="navAvatar" src="" style="width: 45px; height: 45px; border-radius: 15px; border: 1px solid var(--primary); display: none;">
-        </div>
+    <header style="margin-bottom: 40px;">
+        <h1 style="font-size: 2.8rem; font-weight: 800; margin: 0; letter-spacing: -2px;">The Core<span>.</span></h1>
+        <p style="color:var(--sub); margin-top:5px;">Sinkronisasi data otomatis dari semua modul aktif.</p>
     </header>
 
     <section class="analytics-header">
@@ -169,22 +164,13 @@
 <script>
     window.onload = () => {
         document.body.classList.add('loaded');
-        
-        // Proteksi Halaman: Jika belum login, lempar ke login.html
-        if(!localStorage.getItem("coord_user")) {
-            window.location.href = "login.html";
-            return;
-        }
-
         const today = new Date().toLocaleDateString();
         const f = (n) => "Rp" + new Intl.NumberFormat('id-ID').format(n);
         
-        // Tampilkan Avatar Otomatis dari Profile
-        const profile = JSON.parse(localStorage.getItem("coord_profile"));
-        if(profile) {
-            const avatar = document.getElementById("navAvatar");
-            avatar.src = profile.avatar;
-            avatar.style.display = "block";
+        // Proteksi: Jika belum login, ke login.html
+        if(!localStorage.getItem("coord_user")) {
+            window.location.href = "login.html";
+            return;
         }
 
         // Data Finance
