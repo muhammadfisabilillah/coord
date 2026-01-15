@@ -15,11 +15,11 @@
             margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
             opacity: 0; transform: translateY(10px);
             background-image: radial-gradient(circle at 50% 100%, rgba(99, 102, 241, 0.1), transparent 50%);
-            min-height: 100vh;
+            min-height: 100vh; overflow-x: hidden;
         }
         body.loaded { opacity: 1; transform: translateY(0); }
 
-        /* NAVBAR UNIFIED & RESPONSIVE */
+        /* NAVBAR UNIFIED */
         nav { 
             position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; 
             padding: 1.2rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); 
@@ -27,10 +27,9 @@
         }
         .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
         .logo span { color: var(--primary); }
-        
         .nav-links { display: flex; align-items: center; }
         .nav-links a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; position: relative; }
-        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .nav-links a.active { color: #fff; }
         .nav-links a.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary); border-radius: 10px; }
 
         .container { max-width: 600px; margin: 60px auto; padding: 0 24px; }
@@ -40,43 +39,30 @@
             width: 120px; height: 120px; border-radius: 40px; margin: 0 auto 20px;
             border: 2px solid var(--primary); padding: 5px; position: relative;
         }
-        .avatar-img { 
-            width: 100%; height: 100%; border-radius: 35px; object-fit: cover; 
-            background: #1f2937;
-        }
+        .avatar-img { width: 100%; height: 100%; border-radius: 35px; object-fit: cover; background: #1f2937; }
 
-        .settings-card {
-            background: var(--card); border: 1px solid var(--border); border-radius: 35px;
-            padding: 40px; backdrop-filter: blur(20px);
-        }
-
+        .settings-card { background: var(--card); border: 1px solid var(--border); border-radius: 35px; padding: 40px; backdrop-filter: blur(20px); }
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--sub); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
-        
-        input, textarea {
-            width: 100%; background: #1f2937; border: 1px solid var(--border);
-            color: #fff; padding: 15px 20px; border-radius: 15px; font-family: inherit; font-size: 1rem; outline: none;
-        }
+        input, textarea { width: 100%; background: #1f2937; border: 1px solid var(--border); color: #fff; padding: 15px 20px; border-radius: 15px; font-family: inherit; font-size: 1rem; outline: none; }
         input:focus { border-color: var(--primary); }
 
-        .btn-save {
-            background: var(--primary); color: white; border: none; padding: 18px;
-            border-radius: 15px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 20px;
-        }
+        .btn-save { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 20px; }
         .btn-save:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3); }
+        .btn-logout { background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 15px; }
 
-        .btn-logout {
-            background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 15px;
-        }
+        /* CUSTOM TOAST & MODAL */
+        #coordToast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(99, 102, 241, 0.95); color: white; padding: 15px 30px; border-radius: 100px; font-weight: 800; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); animation: slideUp 0.4s ease; }
+        #logoutModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #0f172a; border: 1px solid var(--primary); padding: 40px; border-radius: 35px; width: 100%; max-width: 400px; text-align: center; }
 
-        /* MOBILE RESPONSIVE FIX */
+        @keyframes slideUp { from { transform: translate(-50%, 50px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
         @media (max-width: 850px) {
             nav { flex-direction: column; gap: 15px; padding: 1rem 5%; }
-            .nav-links { margin: 0; justify-content: center; flex-wrap: wrap; gap: 10px; }
+            .nav-links { flex-wrap: wrap; justify-content: center; gap: 10px; }
             .nav-links a { margin: 0 8px; font-size: 0.75rem; }
             .container { margin: 30px auto; }
-            .settings-card { padding: 30px 20px; }
         }
     </style>
 </head>
@@ -108,8 +94,7 @@
             <label>Full Name</label>
             <input type="text" id="editName" placeholder="Masukkan nama kamu" oninput="updateAvatarPreview()">
         </div>
-        <div class="input-group" style="display:none;"> 
-            <label>Avatar URL</label>
+        <div class="input-group" style="display:none;">
             <input type="text" id="editAvatar">
         </div>
         <div class="input-group">
@@ -117,17 +102,41 @@
             <textarea id="editBio" rows="3" placeholder="Apa mantra produktivitasmu hari ini?"></textarea>
         </div>
         <button class="btn-save" onclick="saveProfile()">UPDATE IDENTITY</button>
-        <button class="btn-logout" onclick="logout()">LOGOUT SESSION</button>
+        <button class="btn-logout" onclick="openLogout()">LOGOUT SESSION</button>
+    </div>
+</div>
+
+<div id="coordToast"><span id="toastMsg">Action Success</span></div>
+
+<div id="logoutModal">
+    <div class="modal-content">
+        <h2 style="margin:0;">End Mission?</h2>
+        <p style="color:var(--sub); margin: 15px 0 25px;">Yakin ingin mengakhiri sesi ini, Bos?</p>
+        <button onclick="confirmLogout()" style="background:#ef4444; color:white; border:none; padding:15px; border-radius:15px; width:100%; font-weight:800; cursor:pointer; margin-bottom:10px;">LOGOUT</button>
+        <button onclick="closeLogout()" style="background:transparent; color:var(--sub); border:none; padding:10px; cursor:pointer; font-weight:600;">Kembali</button>
     </div>
 </div>
 
 <script>
     window.onload = () => {
         document.body.classList.add('loaded');
-        // Proteksi Halaman
         if(!localStorage.getItem("coord_user")) { window.location.href = "login.html"; return; }
         loadProfile();
     };
+
+    function showToast(msg) {
+        const toast = document.getElementById("coordToast");
+        document.getElementById("toastMsg").textContent = msg;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    function openLogout() { document.getElementById("logoutModal").style.display = "flex"; }
+    function closeLogout() { document.getElementById("logoutModal").style.display = "none"; }
+    function confirmLogout() {
+        localStorage.removeItem("coord_user");
+        window.location.href = "index.html";
+    }
 
     function updateAvatarPreview() {
         const name = document.getElementById("editName").value || "User";
@@ -137,17 +146,15 @@
     }
 
     function loadProfile() {
-        const userEmail = localStorage.getItem("coord_user") || "guest@coord.os";
+        const userEmail = localStorage.getItem("coord_user");
         const profile = JSON.parse(localStorage.getItem("coord_profile")) || {
             name: "Elite User",
             avatar: "https://ui-avatars.com/api/?name=Elite+User&background=6366f1&color=fff&bold=true&size=512",
-            bio: "Crafting the future through coordination."
+            bio: "Crafting the future."
         };
-
         document.getElementById("displayEmail").textContent = userEmail;
         document.getElementById("displayName").textContent = profile.name;
         document.getElementById("displayAvatar").src = profile.avatar;
-        
         document.getElementById("editName").value = profile.name;
         document.getElementById("editAvatar").value = profile.avatar;
         document.getElementById("editBio").value = profile.bio;
@@ -160,15 +167,8 @@
             bio: document.getElementById("editBio").value
         };
         localStorage.setItem("coord_profile", JSON.stringify(profile));
-        alert("Profil diperbarui, Bos!");
-        location.reload();
-    }
-
-    function logout() {
-        if(confirm("Yakin mau keluar session, Bos?")) {
-            localStorage.removeItem("coord_user");
-            window.location.href = "index.html";
-        }
+        showToast("IDENTITY UPDATED, BOS!");
+        setTimeout(() => { location.reload(); }, 1200);
     }
 </script>
 </body>
