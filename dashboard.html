@@ -6,70 +6,30 @@
     <title>Coord — Smart Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg: #030712; --card: rgba(17, 24, 39, 0.7); --primary: #6366f1; 
-            --accent: #10b981; --text: #f9fafb; --sub: #9ca3af; 
-            --border: rgba(255, 255, 255, 0.05);
-        }
-
-        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        body { 
-            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
-            opacity: 0; background-image: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
-        }
-        body.loaded { opacity: 1; }
-
-        nav { 
-            position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; 
-            padding: 1rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); 
-            border-bottom: 1px solid var(--border); 
-        }
+        :root { --bg: #030712; --card: rgba(17, 24, 39, 0.7); --primary: #6366f1; --accent: #10b981; --text: #f9fafb; --sub: #9ca3af; --border: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; transition: all 0.4s ease; }
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); }
+        
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1.5px; }
         .logo span { color: var(--primary); }
-        
         nav div a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; }
-        nav div a.active { color: #fff; }
 
         .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
+        .glass-panel { background: var(--card); border: 1px solid var(--border); border-radius: 35px; padding: 30px; backdrop-filter: blur(15px); }
         
-        /* BENTO GRID RESPONSIVE */
-        .analytics-header { 
-            display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 20px; margin-bottom: 40px; 
-        }
-        
-        .glass-panel { 
-            background: var(--card); border: 1px solid var(--border); border-radius: 35px; 
-            padding: 30px; backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        .analytics-header { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
 
-        .score-display { font-size: 3.5rem; font-weight: 800; color: #fff; }
+        /* THE PROFESSIONAL MODAL (ANTI-PROMPT) */
+        #goalModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; backdrop-filter:blur(10px); justify-content:center; align-items:center; }
+        .modal-box { background: #111827; border: 1px solid var(--primary); padding: 40px; border-radius: 35px; width: 420px; text-align: center; }
+        .modal-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 18px; border-radius: 18px; color: white; margin: 15px 0; outline: none; font-family: inherit; }
+        .btn-update { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 18px; font-weight: 800; cursor: pointer; width: 100%; }
 
-        .item-label { color: var(--sub); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; display: block; }
-
-        /* PROFESSIONAL MODAL */
-        #goalModal {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
-            display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
-        }
-        .modal-content {
-            background: #0f172a; border: 1px solid var(--primary); padding: 40px; border-radius: 35px;
-            width: 100%; max-width: 450px; text-align: center; box-shadow: 0 0 50px rgba(99, 102, 241, 0.3);
-        }
-        .modal-input {
-            width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
-            padding: 18px 25px; border-radius: 20px; color: white; font-size: 1.1rem; margin: 20px 0; outline: none;
-        }
-        .btn-sync { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 20px; font-weight: 800; width: 100%; cursor: pointer; }
-
-        /* MOBILE OPTIMIZATION */
         @media (max-width: 900px) {
-            nav { padding: 1rem 5%; flex-direction: column; gap: 15px; }
-            nav div { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-            nav div a { margin: 0; font-size: 0.75rem; }
+            nav { flex-direction: column; gap: 15px; }
+            nav div a { margin: 0 10px; font-size: 0.75rem; }
             .analytics-header { grid-template-columns: 1fr; }
-            .score-display { font-size: 2.5rem; }
-            .container { margin: 20px auto; }
         }
     </style>
 </head>
@@ -78,7 +38,7 @@
 <nav>
     <div class="logo">C<span>oord.</span></div>
     <div>
-        <a href="index.html" class="active">Dashboard</a>
+        <a href="dashboard.html">Dashboard</a>
         <a href="time.html">Time</a>
         <a href="finance.html">Finance</a>
         <a href="activity.html">Activity</a>
@@ -87,76 +47,42 @@
 </nav>
 
 <div class="container">
-    <header style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-        <div>
-            <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; letter-spacing: -2px;">The Core<span>.</span></h1>
-            <p style="color:var(--sub); margin-top:5px;">Mission Control & Analytics Center.</p>
-        </div>
-        <button onclick="openModal()" style="background:var(--primary); color:white; border:none; padding:15px 30px; border-radius:20px; font-weight:800; cursor:pointer;">SET TARGET</button>
+    <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px; flex-wrap: wrap; gap: 20px;">
+        <h1>The Core<span>.</span></h1>
+        <button onclick="openModal()" style="background:var(--primary); color:white; border:none; padding:12px 24px; border-radius:15px; font-weight:700; cursor:pointer;">SET TARGET</button>
     </header>
 
-    <section class="analytics-header">
+    <div class="analytics-header">
         <div class="glass-panel">
-            <span class="item-label">Net Worth Goal</span>
-            <div id="finGoalStatus" style="font-size: 1.8rem; font-weight: 800; margin: 15px 0;">Rp0 / Rp0</div>
-            <div style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
-                <div id="finBar" style="height: 100%; width: 0%; background: var(--accent); transition: 1s ease;"></div>
-            </div>
+            <span style="color:var(--sub); font-size:0.75rem; font-weight:700; text-transform:uppercase;">Financial Goal</span>
+            <div id="finGoalText" style="font-size:1.8rem; font-weight:800; margin-top:10px;">Rp0 / Rp0</div>
         </div>
-
         <div class="glass-panel" style="text-align: center;">
-            <span class="item-label">Effort Score</span>
-            <div class="score-display">85%</div>
+            <span style="color:var(--sub); font-size:0.75rem; font-weight:700; text-transform:uppercase;">Productivity</span>
+            <div style="font-size: 3rem; font-weight: 800; color: var(--primary);">85%</div>
         </div>
-
-        <div class="glass-panel" style="background: linear-gradient(135deg, var(--primary), #4338ca);">
-            <span class="item-label" style="color: rgba(255,255,255,0.7);">Focus Time</span>
-            <div class="score-display">0.0h</div>
-        </div>
-    </section>
+    </div>
 </div>
 
 <div id="goalModal">
-    <div class="modal-content">
-        <h2 style="margin:0;">Set Daily Target</h2>
-        <p style="color:var(--sub); margin-top:10px;">Definisikan target finansialmu hari ini.</p>
-        <input type="number" id="modalFin" class="modal-input" placeholder="e.g. 500000">
-        <button class="btn-sync" onclick="saveGoals()">Sync Target</button>
-        <button onclick="closeModal()" style="background:transparent; border:none; color:var(--sub); margin-top:15px; cursor:pointer; font-weight:600;">Batalkan</button>
+    <div class="modal-box">
+        <h2 style="margin-bottom:10px;">Mission Target</h2>
+        <input type="number" id="newFin" class="modal-input" placeholder="Masukkan target (Rp)">
+        <button class="btn-update" onclick="saveGoals()">SYNC TARGET</button>
+        <button onclick="closeModal()" style="background:transparent; color:var(--sub); border:none; margin-top:15px; cursor:pointer;">Batal</button>
     </div>
 </div>
 
 <script>
-    window.onload = () => {
-        document.body.classList.add('loaded');
-        refresh();
-    };
-
     function openModal() { document.getElementById('goalModal').style.display = 'flex'; }
     function closeModal() { document.getElementById('goalModal').style.display = 'none'; }
-
     function saveGoals() {
-        const val = document.getElementById('modalFin').value;
+        const val = document.getElementById("newFin").value;
         if(val) {
             localStorage.setItem("coord_goals", JSON.stringify({ fin: parseInt(val) }));
+            document.getElementById("finGoalText").textContent = `Rp0 / Rp${new Intl.NumberFormat('id-ID').format(val)}`;
             closeModal();
-            refresh();
         }
-    }
-
-    function refresh() {
-        const today = new Date().toLocaleDateString();
-        const f = (n) => "Rp" + new Intl.NumberFormat('id-ID').format(n);
-        const goals = JSON.parse(localStorage.getItem("coord_goals")) || { fin: 0 };
-        
-        const finData = JSON.parse(localStorage.getItem("coord_finance")) || {};
-        let inc = 0, exp = 0;
-        (finData[today] || []).forEach(x => x.type === "in" ? inc += x.amount : exp += x.amount);
-        const net = inc - exp;
-
-        document.getElementById("finGoalStatus").textContent = `${f(net)} / ${f(goals.fin)}`;
-        const perc = goals.fin > 0 ? Math.min((net / goals.fin) * 100, 100) : 0;
-        document.getElementById("finBar").style.width = perc + "%";
     }
 </script>
 </body>
