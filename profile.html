@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coord — User Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #030712; --card: rgba(17, 24, 39, 0.7); --primary: #6366f1; 
+            --text: #f9fafb; --sub: #9ca3af; --border: rgba(255, 255, 255, 0.1);
+        }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { 
+            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
+            opacity: 0; transform: translateY(10px);
+            background-image: radial-gradient(circle at 50% 100%, rgba(99, 102, 241, 0.1), transparent 50%);
+        }
+        body.loaded { opacity: 1; transform: translateY(0); }
+
+        nav { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); border-bottom: 1px solid var(--border); }
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
+        .logo span { color: var(--primary); }
+        nav div a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; }
+
+        .container { max-width: 600px; margin: 60px auto; padding: 0 24px; }
+
+        .profile-header { text-align: center; margin-bottom: 40px; }
+        .avatar-wrapper {
+            width: 120px; height: 120px; border-radius: 40px; margin: 0 auto 20px;
+            border: 2px solid var(--primary); padding: 5px; position: relative;
+        }
+        .avatar-img { 
+            width: 100%; height: 100%; border-radius: 35px; object-fit: cover; 
+            background: #1f2937;
+        }
+
+        .settings-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 35px;
+            padding: 40px; backdrop-filter: blur(20px);
+        }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--sub); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        
+        input, textarea {
+            width: 100%; background: #1f2937; border: 1px solid var(--border);
+            color: #fff; padding: 15px 20px; border-radius: 15px; font-family: inherit; font-size: 1rem; outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .btn-save {
+            background: var(--primary); color: white; border: none; padding: 18px;
+            border-radius: 15px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 20px;
+        }
+        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3); }
+
+        .btn-logout {
+            background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">C<span>oord.</span></div>
+    <div>
+        <a href="index.html">Dashboard</a>
+        <a href="time.html">Time</a>
+        <a href="finance.html">Finance</a>
+        <a href="activity.html">Activity</a>
+        <a href="profile.html" style="color:white">Profile</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="profile-header">
+        <div class="avatar-wrapper">
+            <img id="displayAvatar" src="" class="avatar-img">
+        </div>
+        <h2 id="displayName" style="margin:0; font-weight:800; font-size:1.8rem;">Elite User</h2>
+        <p id="displayEmail" style="color:var(--sub); margin-top:5px;">user@coord.os</p>
+    </div>
+
+    <div class="settings-card">
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" id="editName" placeholder="Masukkan nama kamu" oninput="updateAvatarPreview()">
+        </div>
+        <div class="input-group" style="display:none;"> <label>Avatar URL</label>
+            <input type="text" id="editAvatar">
+        </div>
+        <div class="input-group">
+            <label>Focus Bio</label>
+            <textarea id="editBio" rows="3" placeholder="Apa mantra produktivitasmu hari ini?"></textarea>
+        </div>
+        <button class="btn-save" onclick="saveProfile()">UPDATE IDENTITY</button>
+        <button class="btn-logout" onclick="logout()">LOGOUT SESSION</button>
+    </div>
+</div>
+
+<script>
+    window.onload = () => {
+        document.body.classList.add('loaded');
+        loadProfile();
+    };
+
+    // Fungsi otomatis membuat link inisial berdasarkan nama
+    function updateAvatarPreview() {
+        const name = document.getElementById("editName").value || "User";
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&bold=true&size=512`;
+        document.getElementById("displayAvatar").src = avatarUrl;
+        document.getElementById("editAvatar").value = avatarUrl;
+    }
+
+    function loadProfile() {
+        const userEmail = localStorage.getItem("coord_user") || "guest@coord.os";
+        const profile = JSON.parse(localStorage.getItem("coord_profile")) || {
+            name: "Elite User",
+            avatar: "https://ui-avatars.com/api/?name=Elite+User&background=6366f1&color=fff&bold=true&size=512",
+            bio: "Crafting the future through coordination."
+        };
+
+        document.getElementById("displayEmail").textContent = userEmail;
+        document.getElementById("displayName").textContent = profile.name;
+        document.getElementById("displayAvatar").src = profile.avatar;
+        
+        document.getElementById("editName").value = profile.name;
+        document.getElementById("editAvatar").value = profile.avatar;
+        document.getElementById("editBio").value = profile.bio;
+    }
+
+    function saveProfile() {
+        const profile = {
+            name: document.getElementById("editName").value,
+            avatar: document.getElementById("editAvatar").value,
+            bio: document.getElementById("editBio").value
+        };
+        localStorage.setItem("coord_profile", JSON.stringify(profile));
+        alert("Profil diperbarui, Bos!");
+        location.reload();
+    }
+
+    function logout() {
+        if(confirm("Yakin mau keluar session, Bos?")) {
+            localStorage.removeItem("coord_user");
+            window.location.href = "landing.html";
+        }
+    }
+</script>
+</body>
+</html>

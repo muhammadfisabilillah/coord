@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coord — Finance Elite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #030712; 
+            --card: rgba(17, 24, 39, 0.7); 
+            --primary: #6366f1; 
+            --accent: #10b981; 
+            --red: #f43f5e;
+            --text: #f9fafb; 
+            --sub: #9ca3af; 
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { box-sizing: border-box; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body { 
+            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
+            opacity: 0; transform: translateY(15px); transition: 0.8s ease;
+            background-image: radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.05), transparent 50%);
+            min-height: 100vh;
+        }
+        body.loaded { opacity: 1; transform: translateY(0); }
+
+        nav { 
+            position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; 
+            padding: 1.2rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); 
+            border-bottom: 1px solid var(--border); 
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
+        .logo span { color: var(--primary); }
+        
+        nav div a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; position: relative; }
+        nav div a:hover { color: #fff; }
+        nav div a.active { color: #fff; }
+        nav div a.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary); border-radius: 10px; }
+
+        .container { max-width: 900px; margin: 50px auto; padding: 0 24px; }
+
+        /* DYNAMIC WALLET CARD */
+        .wallet-card {
+            background: linear-gradient(145deg, #111827, #030712);
+            border: 2px solid var(--primary); border-radius: 40px;
+            padding: 45px; margin-bottom: 45px; text-align: center;
+            position: relative; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.25);
+        }
+        .wallet-card.deficit { border-color: var(--red); box-shadow: 0 25px 50px -12px rgba(244, 63, 94, 0.25); }
+        
+        .wallet-label { text-transform: uppercase; font-size: 0.75rem; font-weight: 800; letter-spacing: 3px; color: var(--primary); }
+        .wallet-balance { font-size: 4rem; font-weight: 800; margin: 15px 0; letter-spacing: -3px; }
+
+        /* GLASS INPUT PANEL */
+        .input-panel {
+            background: var(--card); border: 1px solid var(--border); border-radius: 35px;
+            padding: 35px; margin-bottom: 40px; backdrop-filter: blur(20px);
+        }
+        .input-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 15px; }
+        
+        input, select {
+            background: #1f2937 !important; border: 1px solid var(--border);
+            color: #fff !important; padding: 18px 24px; border-radius: 20px; font-family: inherit; font-size: 1rem;
+        }
+        select option { background: #111827; color: #fff; }
+        input:focus { outline: none; border-color: var(--primary); background: #374151 !important; }
+
+        .btn-record {
+            background: var(--primary); color: white; border: none; padding: 20px;
+            border-radius: 20px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 20px;
+            font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .btn-record:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); }
+
+        /* TRANSACTION LIST */
+        .trx-list { display: grid; gap: 12px; }
+        .trx-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 25px;
+            padding: 22px 30px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .trx-card:hover { border-color: var(--primary); transform: scale(1.02); background: rgba(255,255,255,0.02); }
+
+        .trx-main { display: flex; flex-direction: column; }
+        .trx-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
+        .trx-tag { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; width: fit-content; }
+        .tag-in { background: rgba(16, 185, 129, 0.1); color: var(--accent); }
+        .tag-out { background: rgba(244, 63, 94, 0.1); color: var(--red); }
+
+        .amt { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+        .amt.in { color: var(--accent); }
+        .amt.out { color: var(--red); }
+
+        .btn-del { 
+            background: none; border: none; color: var(--red); opacity: 0.3; 
+            font-size: 1.5rem; cursor: pointer; padding-left: 20px;
+        }
+        .btn-del:hover { opacity: 1; transform: rotate(90deg); }
+
+        @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">C<span>oord.</span></div>
+    <div>
+        <a href="landing.html">Home</a>
+        <a href="index.html">Dashboard</a>
+        <a href="time.html">Time</a>
+        <a href="finance.html" class="active" style="color:white">Finance</a>
+        <a href="activity.html">Activity</a>
+        <a href="profile.html">Profile</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="wallet-card" id="wallet">
+        <span class="wallet-label">Total Net worth</span>
+        <div class="wallet-balance" id="netBal">Rp0</div>
+        <p style="color: var(--sub); font-size: 0.85rem;" id="advice">Mulai catat transaksi pertamamu, Bos!</p>
+    </div>
+
+    <div class="input-panel">
+        <div class="input-grid">
+            <input type="text" id="desc" placeholder="Keterangan (e.g. Beli Kopi)">
+            <input type="number" id="amt" placeholder="Nominal">
+            <select id="type">
+                <option value="in">Masuk</option>
+                <option value="out">Keluar</option>
+            </select>
+        </div>
+        <button class="btn-record" onclick="saveTrx()">Deploy Transaction</button>
+    </div>
+
+    <div class="trx-list" id="trxList"></div>
+</div>
+
+<script>
+    const today = new Date().toLocaleDateString();
+    const f = (n) => "Rp" + new Intl.NumberFormat('id-ID').format(n);
+
+    window.onload = () => {
+        document.body.classList.add('loaded');
+        render();
+    };
+
+    function saveTrx() {
+        const d = document.getElementById("desc").value;
+        const a = parseInt(document.getElementById("amt").value);
+        const t = document.getElementById("type").value;
+        
+        if(!d || !a) return alert("Detailnya belum lengkap, Bos!");
+
+        let data = JSON.parse(localStorage.getItem("coord_finance")) || {};
+        if(!data[today]) data[today] = [];
+        data[today].unshift({ desc: d, amount: a, type: t });
+        localStorage.setItem("coord_finance", JSON.stringify(data));
+        
+        document.getElementById("desc").value = "";
+        document.getElementById("amt").value = "";
+        render();
+    }
+
+    function render() {
+        const data = JSON.parse(localStorage.getItem("coord_finance")) || {};
+        const list = data[today] || [];
+        let ti = 0, to = 0;
+
+        document.getElementById("trxList").innerHTML = list.map((item, idx) => {
+            if(item.type === 'in') ti += item.amount; else to += item.amount;
+            return `
+                <div class="trx-card">
+                    <div class="trx-main">
+                        <span class="trx-title">${item.desc}</span>
+                        <span class="trx-tag ${item.type === 'in' ? 'tag-in' : 'tag-out'}">
+                            ${item.type === 'in' ? 'Income' : 'Expense'}
+                        </span>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <span class="amt ${item.type}">${item.type === 'in' ? '+' : '-'}${f(item.amount)}</span>
+                        <button class="btn-del" onclick="del(${idx})">×</button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+        const net = ti - to;
+        const netEl = document.getElementById("netBal");
+        const walletEl = document.getElementById("wallet");
+        const adviceEl = document.getElementById("advice");
+
+        netEl.textContent = f(net);
+        
+        if (net < 0) {
+            walletEl.classList.add('deficit');
+            netEl.style.color = "var(--red)";
+            adviceEl.textContent = "Waspada, pengeluaranmu membengkak!";
+        } else {
+            walletEl.classList.remove('deficit');
+            netEl.style.color = "#fff";
+            adviceEl.textContent = "Keren, arus kasmu masih aman terkendali.";
+        }
+    }
+
+    function del(idx) {
+        let data = JSON.parse(localStorage.getItem("coord_finance"));
+        data[today].splice(idx, 1);
+        localStorage.setItem("coord_finance", JSON.stringify(data));
+        render();
+    }
+</script>
+</body>
+</html>
