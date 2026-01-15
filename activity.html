@@ -26,6 +26,7 @@
         }
         body.loaded { opacity: 1; transform: scale(1); }
 
+        /* NAVBAR UNIFIED & RESPONSIVE */
         nav { 
             position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; 
             padding: 1.2rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); 
@@ -34,10 +35,10 @@
         .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
         .logo span { color: var(--primary); }
         
-        nav div a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; position: relative; }
-        nav div a:hover { color: #fff; }
-        nav div a.active { color: #fff; }
-        nav div a.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary); border-radius: 10px; }
+        .nav-links { display: flex; align-items: center; }
+        .nav-links a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; position: relative; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .nav-links a.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary); border-radius: 10px; }
 
         .container { max-width: 800px; margin: 60px auto; padding: 0 24px; }
 
@@ -75,16 +76,11 @@
         .mission-card:hover { border-color: var(--accent); background: rgba(16, 185, 129, 0.03); }
 
         .mission-info { display: flex; align-items: center; gap: 20px; flex: 1; cursor: pointer; }
-        .status-indicator { 
-            width: 12px; height: 12px; border-radius: 50%; background: var(--sub); 
-        }
-        
+        .status-indicator { width: 12px; height: 12px; border-radius: 50%; background: var(--sub); }
         .mission-text { font-size: 1.1rem; font-weight: 600; }
 
         /* ACTION BUTTONS */
-        .action-btns { display: flex; gap: 10px; opacity: 0; transform: translateX(10px); }
-        .mission-card:hover .action-btns { opacity: 1; transform: translateX(0); }
-
+        .action-btns { display: flex; gap: 10px; }
         .btn-action {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
             color: var(--sub); width: 40px; height: 40px; border-radius: 12px;
@@ -95,21 +91,36 @@
 
         /* COMPLETED STATE */
         .mission-card.completed { border-color: var(--accent); opacity: 0.6; }
-        .mission-card.completed .status-indicator { 
-            background: var(--accent); box-shadow: 0 0 15px var(--accent); 
-        }
+        .mission-card.completed .status-indicator { background: var(--accent); box-shadow: 0 0 15px var(--accent); }
         .mission-card.completed .mission-text { text-decoration: line-through; color: var(--sub); }
 
-        .empty-state { text-align: center; color: var(--sub); margin-top: 40px; font-style: italic; }
+        /* CUSTOM MODAL FOR EDIT (ANTI-PROMPT) */
+        #editModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(10px); justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: #0f172a; border: 1px solid var(--primary); padding: 40px; border-radius: 30px; width: 100%; max-width: 420px; text-align: center; }
+        .m-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 18px; border-radius: 15px; color: white; margin: 20px 0; outline: none; font-size: 1rem; }
+        .btn-m { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: 800; cursor: pointer; }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 850px) {
+            nav { flex-direction: column; gap: 15px; padding: 1rem 5%; }
+            .nav-links { margin: 0; justify-content: center; flex-wrap: wrap; gap: 10px; }
+            .nav-links a { margin: 0 8px; font-size: 0.75rem; }
+            .container { margin: 30px auto; }
+            .header-section h1 { font-size: 2.2rem; }
+            .command-bar { flex-direction: column; padding: 15px; border-radius: 20px; }
+            .btn-add { padding: 15px; width: 100%; }
+            .mission-card { padding: 15px 20px; flex-direction: column; gap: 15px; align-items: flex-start; }
+            .action-btns { width: 100%; justify-content: flex-end; }
+        }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo">C<span>oord.</span></div>
-    <div>
-        <a href="landing.html">Home</a>
-        <a href="index.html">Dashboard</a>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
         <a href="time.html">Time</a>
         <a href="finance.html">Finance</a>
         <a href="activity.html" class="active">Activity</a>
@@ -131,24 +142,33 @@
     <div class="activity-grid" id="list"></div>
 </div>
 
+<div id="editModal">
+    <div class="modal-box">
+        <h2 style="margin:0;">Edit Mission</h2>
+        <input type="text" id="editInput" class="m-input">
+        <input type="hidden" id="editIndex">
+        <button class="btn-m" onclick="saveEdit()">UPDATE MISSION</button>
+        <button onclick="closeModal()" style="background:transparent; border:none; color:var(--sub); margin-top:15px; cursor:pointer;">Batalkan</button>
+    </div>
+</div>
+
 <script>
     const today = new Date().toLocaleDateString();
 
     window.onload = () => {
         document.body.classList.add('loaded');
+        // Proteksi Halaman
+        if(!localStorage.getItem("coord_user")) { window.location.href = "login.html"; return; }
         render();
     };
 
     function addActivity() {
         const val = document.getElementById("ai").value;
         if(!val) return;
-
         let data = JSON.parse(localStorage.getItem("coord_activities")) || {};
         if(!data[today]) data[today] = [];
-        
         data[today].push({ text: val, done: false });
         localStorage.setItem("coord_activities", JSON.stringify(data));
-        
         document.getElementById("ai").value = "";
         render();
     }
@@ -157,12 +177,10 @@
         const data = JSON.parse(localStorage.getItem("coord_activities")) || {};
         const list = data[today] || [];
         const container = document.getElementById("list");
-
         if(list.length === 0) {
-            container.innerHTML = `<p class="empty-state">Belum ada misi yang dideploy hari ini.</p>`;
+            container.innerHTML = `<p style="text-align:center; color:var(--sub); font-style:italic; margin-top:40px;">Belum ada misi yang dideploy hari ini.</p>`;
             return;
         }
-
         container.innerHTML = list.map((item, idx) => `
             <div class="mission-card ${item.done ? 'completed' : ''}">
                 <div class="mission-info" onclick="toggle(${idx})">
@@ -170,7 +188,7 @@
                     <span class="mission-text">${item.text}</span>
                 </div>
                 <div class="action-btns">
-                    <button class="btn-action" onclick="editActivity(${idx})">✎</button>
+                    <button class="btn-action" onclick="openEdit(${idx})">✎</button>
                     <button class="btn-action del" onclick="deleteActivity(${idx})">×</button>
                 </div>
             </div>
@@ -192,14 +210,22 @@
         render();
     }
 
-    function editActivity(idx) {
-        let data = JSON.parse(localStorage.getItem("coord_activities"));
-        const currentText = data[today][idx].text;
-        const newText = prompt("Revisi misi kamu:", currentText);
-        
-        if (newText !== null && newText.trim() !== "") {
+    // CUSTOM EDIT LOGIC
+    function openEdit(idx) {
+        const data = JSON.parse(localStorage.getItem("coord_activities"));
+        document.getElementById("editInput").value = data[today][idx].text;
+        document.getElementById("editIndex").value = idx;
+        document.getElementById("editModal").style.display = "flex";
+    }
+    function closeModal() { document.getElementById("editModal").style.display = "none"; }
+    function saveEdit() {
+        const idx = document.getElementById("editIndex").value;
+        const newText = document.getElementById("editInput").value;
+        if(newText) {
+            let data = JSON.parse(localStorage.getItem("coord_activities"));
             data[today][idx].text = newText;
             localStorage.setItem("coord_activities", JSON.stringify(data));
+            closeModal();
             render();
         }
     }
