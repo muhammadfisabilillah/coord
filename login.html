@@ -6,44 +6,124 @@
     <title>Coord — Login Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #030712; --primary: #6366f1; --text: #f9fafb; --sub: #9ca3af; --border: rgba(255, 255, 255, 0.1); }
-        * { box-sizing: border-box; transition: 0.3s; }
-        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .login-card { background: rgba(17, 24, 39, 0.7); border: 1px solid var(--border); padding: 40px; border-radius: 40px; backdrop-filter: blur(20px); width: 100%; max-width: 420px; text-align: center; }
-        input { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 18px; border-radius: 20px; color: white; margin-bottom: 15px; outline: none; }
-        .btn-login { width: 100%; background: white; color: black; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; }
-        .btn-login:hover { background: var(--primary); color: white; transform: translateY(-3px); }
+        :root { 
+            --bg: #030712; 
+            --primary: #6366f1; 
+            --text: #f9fafb; 
+            --sub: #9ca3af; 
+            --border: rgba(255, 255, 255, 0.1); 
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body { 
+            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text);
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
+            overflow: hidden;
+        }
+
+        /* DYNAMIC MESH BACKGROUND */
+        .mesh-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+            filter: blur(80px);
+        }
+
+        .login-card {
+            background: rgba(17, 24, 39, 0.7); border: 1px solid var(--border);
+            padding: 50px; border-radius: 40px; backdrop-filter: blur(25px);
+            width: 100%; max-width: 450px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            animation: float 1s ease-out;
+        }
+
+        @keyframes float { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo { font-size: 2rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 25px; }
+        .logo span { color: var(--primary); }
+        
+        h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
+
+        input {
+            width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 18px 25px; border-radius: 20px; color: white; margin-bottom: 15px;
+            font-family: inherit; font-size: 1rem; outline: none;
+        }
+        input:focus { border-color: var(--primary); background: rgba(255,255,255,0.06); box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
+
+        .btn-login {
+            width: 100%; background: white; color: black; border: none;
+            padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer;
+            font-size: 1rem; margin-top: 10px;
+        }
+        .btn-login:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); }
+        
+        .footer-text { margin-top: 25px; color: var(--sub); font-size: 0.9rem; }
+        .footer-text a { color: var(--primary); text-decoration: none; font-weight: 700; }
+
+        /* CUSTOM ALERT (TOAST) */
+        #errorToast {
+            display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #ef4444; color: white; padding: 15px 35px; border-radius: 100px;
+            font-weight: 800; z-index: 1000; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp { from { transform: translate(-50%, 50px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 35px 25px; border-radius: 30px; }
+        }
     </style>
 </head>
 <body>
+
+<div class="mesh-bg"></div>
+
 <div class="login-card">
-    <div style="font-size: 2rem; font-weight: 800; margin-bottom: 20px;">C<span style="color:var(--primary)">oord.</span></div>
-    <h2 style="margin:0;">Welcome Back</h2>
-    <p style="color:var(--sub); margin-bottom: 30px;">Masuk dengan akun yang sudah terdaftar.</p>
+    <div class="logo">C<span>oord.</span></div>
+    <h2>Welcome Back</h2>
+    <p style="color: var(--sub); margin-bottom: 30px;">Akses OS produktivitas pribadimu.</p>
+    
     <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="pass" placeholder="Password">
-    <button class="btn-login" onclick="handleLogin()">Sign In</button>
-    <p style="margin-top:20px; font-size:0.8rem; color:var(--sub);">Belum punya akses? <a href="register.html" style="color:var(--primary); text-decoration:none;">Buat Akun</a></p>
+    <input type="password" id="pass" placeholder="Secret Password">
+    <button class="btn-login" onclick="handleLogin()">ACCESS THE CORE</button>
+    
+    <div class="footer-text">
+        New to the system? <a href="register.html">Create Mission</a>
+    </div>
 </div>
 
+<div id="errorToast">DATA TIDAK VALID, BOS!</div>
+
 <script>
+    function showToast(msg) {
+        const toast = document.getElementById("errorToast");
+        toast.textContent = msg;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
     function handleLogin() {
         const emailInput = document.getElementById('email').value;
         const passInput = document.getElementById('pass').value;
 
-        // Ambil "Database"
+        // Ambil "Database" dari LocalStorage
         let users = JSON.parse(localStorage.getItem("coord_accounts")) || [];
         
-        // Cari user yang email dan password-nya cocok
+        // Cari user yang COCOK email dan password-nya
         const validUser = users.find(u => u.email === emailInput && u.password === passInput);
 
         if(validUser) { 
             localStorage.setItem("coord_user", emailInput); 
             window.location.href = "dashboard.html"; 
         } else {
-            alert("Email atau Password salah, Bos! Pastikan sudah daftar di Register.");
+            showToast("Akses Ditolak! Email/Password salah.");
         }
     }
 </script>
+
 </body>
 </html>
