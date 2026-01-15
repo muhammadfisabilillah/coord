@@ -15,13 +15,23 @@
             margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); 
             opacity: 0; transform: translateY(10px);
             background-image: radial-gradient(circle at 50% 100%, rgba(99, 102, 241, 0.1), transparent 50%);
+            min-height: 100vh;
         }
         body.loaded { opacity: 1; transform: translateY(0); }
 
-        nav { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); border-bottom: 1px solid var(--border); }
+        /* NAVBAR UNIFIED & RESPONSIVE */
+        nav { 
+            position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; 
+            padding: 1.2rem 8%; backdrop-filter: blur(25px); background: rgba(3, 7, 18, 0.6); 
+            border-bottom: 1px solid var(--border); 
+        }
         .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; }
         .logo span { color: var(--primary); }
-        nav div a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; }
+        
+        .nav-links { display: flex; align-items: center; }
+        .nav-links a { color: var(--sub); text-decoration: none; margin-left: 2rem; font-weight: 600; font-size: 0.85rem; position: relative; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+        .nav-links a.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--primary); border-radius: 10px; }
 
         .container { max-width: 600px; margin: 60px auto; padding: 0 24px; }
 
@@ -59,18 +69,28 @@
             background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
             padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 15px;
         }
+
+        /* MOBILE RESPONSIVE FIX */
+        @media (max-width: 850px) {
+            nav { flex-direction: column; gap: 15px; padding: 1rem 5%; }
+            .nav-links { margin: 0; justify-content: center; flex-wrap: wrap; gap: 10px; }
+            .nav-links a { margin: 0 8px; font-size: 0.75rem; }
+            .container { margin: 30px auto; }
+            .settings-card { padding: 30px 20px; }
+        }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo">C<span>oord.</span></div>
-    <div>
-        <a href="index.html">Dashboard</a>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
         <a href="time.html">Time</a>
         <a href="finance.html">Finance</a>
         <a href="activity.html">Activity</a>
-        <a href="profile.html" style="color:white">Profile</a>
+        <a href="profile.html" class="active">Profile</a>
     </div>
 </nav>
 
@@ -88,7 +108,8 @@
             <label>Full Name</label>
             <input type="text" id="editName" placeholder="Masukkan nama kamu" oninput="updateAvatarPreview()">
         </div>
-        <div class="input-group" style="display:none;"> <label>Avatar URL</label>
+        <div class="input-group" style="display:none;"> 
+            <label>Avatar URL</label>
             <input type="text" id="editAvatar">
         </div>
         <div class="input-group">
@@ -103,10 +124,11 @@
 <script>
     window.onload = () => {
         document.body.classList.add('loaded');
+        // Proteksi Halaman
+        if(!localStorage.getItem("coord_user")) { window.location.href = "login.html"; return; }
         loadProfile();
     };
 
-    // Fungsi otomatis membuat link inisial berdasarkan nama
     function updateAvatarPreview() {
         const name = document.getElementById("editName").value || "User";
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&bold=true&size=512`;
@@ -145,7 +167,7 @@
     function logout() {
         if(confirm("Yakin mau keluar session, Bos?")) {
             localStorage.removeItem("coord_user");
-            window.location.href = "landing.html";
+            window.location.href = "index.html";
         }
     }
 </script>
